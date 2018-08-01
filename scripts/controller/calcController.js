@@ -21,6 +21,7 @@ class CalcController {
             this.setDisplayDateTime()
         }, 1000);
 
+        this.setLestNumberToDisplay();
         /*    
         let interval = setInterval(()=>{
           this.setDisplayDate = this.getCurrentDate.toLocaleDateString(this._locale);
@@ -48,10 +49,12 @@ class CalcController {
     //método para limpar tudo
     clearAll() {
         this._operation = [];
+        this.setLestNumberToDisplay();
     }
 
     clearEntry() {
         this._operation.pop();
+        this.setLestNumberToDisplay();
     }
 
 
@@ -81,27 +84,31 @@ class CalcController {
 
 
     calc() {
-        /* let calcule = '';
+        
+        let last = '';
 
-        for(let i = 0; i < this._operation.length; i++){
-            calcule = calcule.concat(this._operation[i].toString());
+        if(this._operation > 3){
+            last = this._operation.pop(); // vai tirar o ultimo item do array, no caso  um +, ou -, / *, pq funciona assim: se for digitado 5+5+ (esse segundo + digitado é para fazer a conta ali atrás e ser retirado)
         }
-
-        console.log(eval(calcule)); */
-        /* let calcule = '';
-
-        this._operation.forEach((opener, index) => {
-            calcule = calcule.concat(opener.toString());
-        });
-
-        console.log(eval(calcule)); */
-
-        let last = this._operation.pop(); // vai tirar o ultimo item do array
-
+       
         let result = eval(this._operation.join(""));
 
         //depois do novo array atualizo na próxima instrução
         this._operation = [result, last];
+        //validando o simbolo de porcentagem
+        if(last == '%'){
+            result /= 100;
+            this._operation = [result];
+        }else {
+
+            //depois do novo array atualizo na próxima instrução
+            this._operation = [result];
+
+            if(last) this._operation.push(last);
+
+        }
+        
+       
 
         //atualizando o diplay depois dos novos valores dentro do array
         this.setLestNumberToDisplay();
@@ -124,6 +131,9 @@ class CalcController {
                 break;
             }
         }
+
+        //se for vazio, é zero, assim o display já começa com zero
+        if(!lastNumber) lastNumber = 0;
 
         this.setDisplayCalc = lastNumber;
 
