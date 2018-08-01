@@ -100,7 +100,13 @@ class CalcController {
 
         let result = eval(this._operation.join(""));
 
+        //depois do novo array atualizo na próxima instrução
         this._operation = [result, last];
+
+        //atualizando o diplay depois dos novos valores dentro do array
+        this.setLestNumberToDisplay();
+
+
 
 
         //o Join ele pode subistituir o separador de um array que no caso é a virgula e sibstituir po qualquer coisa ou apenas juntar
@@ -109,6 +115,17 @@ class CalcController {
 
     //tenho que verificar o último número array, não o último item do array
     setLestNumberToDisplay() {
+
+        let lastNumber;
+
+        for(let i = this._operation.length -1; i >=0; i--){
+            if(!this.isOperator(this._operation[i])){
+                lastNumber = this._operation[i];
+                break;
+            }
+        }
+
+        this.setDisplayCalc = lastNumber;
 
         
 
@@ -127,6 +144,8 @@ class CalcController {
                 console.log('outra coisa', value);
             } else {
                 this.pushOperation(value);
+                //isso pq é um número e quando eu clicava em um número, não aparecia o primeiro, apenas o segundo
+                this.setLestNumberToDisplay();
             }
 
 
