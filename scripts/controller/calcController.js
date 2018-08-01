@@ -3,6 +3,9 @@ class CalcController {
     //método construtor é chamado automaticamente quando é feita uma nova instancia da classe
     constructor() {
         //this faz referência ao próprio objeto que foi instanciado, fazendo referencia a atributos e métodos
+        this._lastOperator = '';
+        this._lastNumber = '';
+
         this._operation = [];
         this._displayCalcEl = document.querySelector("#display");
         this._dateEl = document.querySelector("#data");
@@ -82,33 +85,55 @@ class CalcController {
         }
     }
 
+    //aqui é o calculo de fato com o eval e com o join que irá juntar as index formando uma string
+    getResult() {
+        return eval(this._operation.join(""));
+    }
 
     calc() {
-        
-        let last = '';
 
-        if(this._operation > 3){
-            last = this._operation.pop(); // vai tirar o ultimo item do array, no caso  um +, ou -, / *, pq funciona assim: se for digitado 5+5+ (esse segundo + digitado é para fazer a conta ali atrás e ser retirado)
-        }
+        let last = '';
+        this._lastOperator = this.getLastItem(); //sei que lá passa por padrão true, mas por garantia vou passar mesmo assim true para me retornar o ultimo simbolo que vai servir para os dois if abaixo
+        
        
-        let result = eval(this._operation.join(""));
+       if(this._operation.length < 3){ //esse daqui é o que dependo para que quando eu digito 3+3 =6 e click em mais um =, é para usar o último operador e o último operando, ou seja 3+3=6 +3 = 9
+           
+        let firstItem = this._operation[0];
+        this._operation = [firstItem, this._lastOperator, this._lastNumber];
+
+
+       }
+        if (this._operation.length > 3) {
+            last = this._operation.pop(); // vai tirar o ultimo item do array, no caso  um +, ou -, / *, pq funciona assim: se for digitado 5+5+ (esse segundo + digitado é para fazer a conta ali atrás e ser retirado)
+            this._lastNumber = this.getResult(); //simplesmente quero guardar o resultado por exemplo de 2+3 que é 5, para que o botão igual some +5 que é isso que outras calculadora fazer
+
+        }else if(this._operation.length ==3 ){ //se cair no primeiro if, não cai no else if
+
+            this._lastNumber = this.getLastItem(false); //para me retornar o último número que ele tem.
+       
+        }
+
+        console.log('_lastOperator:', this._lastOperator );
+        console.log('_lastNumber:', this._lastNumber);
+
+        let result = this.getResult();
 
         //depois do novo array atualizo na próxima instrução
         this._operation = [result, last];
         //validando o simbolo de porcentagem
-        if(last == '%'){
+        if (last == '%') {
             result /= 100;
             this._operation = [result];
-        }else {
+        } else {
 
             //depois do novo array atualizo na próxima instrução
             this._operation = [result];
 
-            if(last) this._operation.push(last);
+            if (last) this._operation.push(last);
 
         }
-        
-       
+
+
 
         //atualizando o diplay depois dos novos valores dentro do array
         this.setLestNumberToDisplay();
@@ -120,24 +145,41 @@ class CalcController {
 
     }
 
-    //tenho que verificar o último número array, não o último item do array
-    setLestNumberToDisplay() {
+    //se eu não passo nada quando chamo esse método, por padrão ele é true significando que é um simbolo de operação, se eu passar, então possivelmente é falso e então serã um número
+    getLastItem(isOperator = true) {
+        let lastItem;
 
-        let lastNumber;
-
-        for(let i = this._operation.length -1; i >=0; i--){
-            if(!this.isOperator(this._operation[i])){
-                lastNumber = this._operation[i];
+        for (let i = this._operation.length - 1; i >= 0; i--) {
+            if (this.isOperator(this._operation[i]) === isOperator){
+                lastItem= this._operation[i];
                 break;
             }
         }
 
+        //não encontrou o lastItem?
+        if(!lastItem){  //se for um operador, retorne esse atributo que está na memória, senão retorne o último número
+            lastItem = (isOperator) ? this._lastOperator : this._lastNumber; 
+        }
+
+        //retorno o ultimo item que estou procurando
+        console.log('lastItem dentro do getLastItem', lastItem);
+        return lastItem;
+
+    }
+
+
+    //tenho que verificar o último número array, não o último item do array
+    setLestNumberToDisplay() {
+
+        let lastNumber = this.getLastItem(false); //tenho que passar falso pq por padrão é true isso retornaria um simbolo e não um número
+
+      
         //se for vazio, é zero, assim o display já começa com zero
-        if(!lastNumber) lastNumber = 0;
+        if (!lastNumber) lastNumber = 0;
 
         this.setDisplayCalc = lastNumber;
 
-        
+
 
     }
 
@@ -175,131 +217,131 @@ class CalcController {
 
         }
 
-}
+    }
 
-setError(){
-    this.setDisplayCalc = "Error";
-}
+    setError() {
+        this.setDisplayCalc = "Error";
+    }
 
-//decidir qual a ação desse botão
-execBtn(numero) {
+    //decidir qual a ação desse botão
+    execBtn(numero) {
 
-    switch (numero) {
-        case 'ac':
-            this.clearAll();
-            break;
-        case 'ce':
-            this.clearEntry();
-            break;
-        case 'soma':
-            this.addOperation('+');
-            break;
-        case 'subtração':
-            this.addOperation('-');
-            break;
-        case 'divisao':
-            this.addOperation('/');
-            break;
-        case 'multiplicacao':
-            this.addOperation('*');
-            break;
-        case 'porcento':
-            this.addOperation('%');
-            break;
-        case 'igual':
-            this.calc();
-            break;
-        case 'ponto':
-            this.addOperation('.');
-            break;
+        switch (numero) {
+            case 'ac':
+                this.clearAll();
+                break;
+            case 'ce':
+                this.clearEntry();
+                break;
+            case 'soma':
+                this.addOperation('+');
+                break;
+            case 'subtração':
+                this.addOperation('-');
+                break;
+            case 'divisao':
+                this.addOperation('/');
+                break;
+            case 'multiplicacao':
+                this.addOperation('*');
+                break;
+            case 'porcento':
+                this.addOperation('%');
+                break;
+            case 'igual':
+                this.calc();
+                break;
+            case 'ponto':
+                this.addOperation('.');
+                break;
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            this.addOperation(parseInt(numero));
-            break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                this.addOperation(parseInt(numero));
+                break;
 
-        default:
-            this.setError();
-            break;
+            default:
+                this.setError();
+                break;
 
+
+        }
 
     }
 
-}
 
+    //inicializar os buttons, o seletor de > g, quer dizer pegue todas as tags g do filho de buttons
 
-//inicializar os buttons, o seletor de > g, quer dizer pegue todas as tags g do filho de buttons
+    initButtonEvents() {
+        let buttons = document.querySelectorAll("#buttons > g, #parts > g");
 
-initButtonEvents() {
-    let buttons = document.querySelectorAll("#buttons > g, #parts > g");
+        buttons.forEach((btn, index) => {
+            //primeiro parâmetro dele é que evento que vocÊ quer, exemplo click, o segundo é o que eu devo fazer. O e é o parametro da minha arrowFunction, isso é, se eu quiser falar algo sobre o button que foi chamado, eu falo algo    
+            this.addEventListenerAll(btn, 'click drag', e => { //addEventListener  é nativo do JS
+                let textBtn = btn.className.baseVal.replace("btn-", "");
+                this.execBtn(textBtn);
+            });
 
-    buttons.forEach((btn, index) => {
-        //primeiro parâmetro dele é que evento que vocÊ quer, exemplo click, o segundo é o que eu devo fazer. O e é o parametro da minha arrowFunction, isso é, se eu quiser falar algo sobre o button que foi chamado, eu falo algo    
-        this.addEventListenerAll(btn, 'click drag', e => { //addEventListener  é nativo do JS
-            let textBtn = btn.className.baseVal.replace("btn-", "");
-            this.execBtn(textBtn);
+            this.addEventListenerAll(btn, "mouseover mouseup mousedown", e => {
+                btn.style.cursor = "pointer";
+            });
+
         });
 
-        this.addEventListenerAll(btn, "mouseover mouseup mousedown", e => {
-            btn.style.cursor = "pointer";
+    }
+
+
+    setDisplayDateTime() {
+        this.setDisplayDate = this.getCurrentDate.toLocaleDateString(this._locale, {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
         });
+        this.setDisplayTime = this.getCurrentDate.toLocaleTimeString(this._locale);
+    }
 
-    });
+    get getDisplayTime() {
+        return this._timeEl.innerHTML;
+    }
 
-}
+    get getDisplayDate() {
+        return this._dateEl.innerHTML;
+    }
 
+    set setDisplayTime(value) {
+        this._timeEl.innerHTML = value;
+    }
 
-setDisplayDateTime() {
-    this.setDisplayDate = this.getCurrentDate.toLocaleDateString(this._locale, {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
-    this.setDisplayTime = this.getCurrentDate.toLocaleTimeString(this._locale);
-}
-
-get getDisplayTime() {
-    return this._timeEl.innerHTML;
-}
-
-get getDisplayDate() {
-    return this._dateEl.innerHTML;
-}
-
-set setDisplayTime(value) {
-    this._timeEl.innerHTML = value;
-}
-
-set setDisplayDate(value) {
-    this._dateEl.innerHTML = value;
-}
+    set setDisplayDate(value) {
+        this._dateEl.innerHTML = value;
+    }
 
 
-//recupera o valor
-get getDisplayCalc() {
-    return this._displayCalcEl.innerHTML;
-}
+    //recupera o valor
+    get getDisplayCalc() {
+        return this._displayCalcEl.innerHTML;
+    }
 
-//altera o valor
-set setDisplayCalc(valor) {
-    this._displayCalcEl.innerHTML = valor;
-}
+    //altera o valor
+    set setDisplayCalc(valor) {
+        this._displayCalcEl.innerHTML = valor;
+    }
 
-get getCurrentDate() {
-    return new Date();
-}
+    get getCurrentDate() {
+        return new Date();
+    }
 
-set setCurrentDate(value) {
-    this._currentDate = value;
-}
+    set setCurrentDate(value) {
+        this._currentDate = value;
+    }
 
 }
 /* //dentro de uma classe vou encontrar variáveis e funções.
