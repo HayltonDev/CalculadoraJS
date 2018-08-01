@@ -54,131 +54,223 @@ class CalcController {
         this._operation.pop();
     }
 
-    addOperation(value) {
+
+    getLestOperation() {
+        return this._operation[this._operation.length - 1];
+    }
+
+    setLastOperation(value) {
+        this._operation[this._operation.length - 1] = value;
+    }
+
+    isOperator(value) {
+        //o indexOf vai buscar aqui dentro se o value é igual a algum
+        return (['+', '-', '*', '%', '/'].indexOf(value) > -1);
+        //vai retornar true se for 0 pra fremte e falso e foi -1
+
+    }
+
+    //responsável por verificar se tenho um par de numero com sinal e já calcular, para mostrar a operação acontecendo em pares
+    pushOperation(value) {
         this._operation.push(value);
-        console.log(this._operation);
+        if (this._operation.length > 3) {
+            this.calc(); //chamo efetivamente o método para calcular
+
+        }
     }
 
-    setError() {
-        this.setDisplayCalc = "Error";
+
+    calc() {
+        /* let calcule = '';
+
+        for(let i = 0; i < this._operation.length; i++){
+            calcule = calcule.concat(this._operation[i].toString());
+        }
+
+        console.log(eval(calcule)); */
+        /* let calcule = '';
+
+        this._operation.forEach((opener, index) => {
+            calcule = calcule.concat(opener.toString());
+        });
+
+        console.log(eval(calcule)); */
+
+        let last = this._operation.pop(); // vai tirar o ultimo item do array
+
+        let result = eval(this._operation.join(""));
+
+        this._operation = [result, last];
+
+
+        //o Join ele pode subistituir o separador de um array que no caso é a virgula e sibstituir po qualquer coisa ou apenas juntar
+
     }
 
-    //decidir qual a ação desse botão
-    execBtn(numero) {
+    //tenho que verificar o último número array, não o último item do array
+    setLestNumberToDisplay() {
 
-        switch (numero) {
-            case 'ac':
-                this.clearAll();
-                break;
-            case 'ce':
-                this.clearEntry();
-                break;
-            case 'soma':
+        
 
-                break;
-            case 'subtração':
+    }
 
-                break;
-            case 'divisao':
+    addOperation(value) {
 
-                break;
-            case 'multiplicacao':
+        if (isNaN(this.getLestOperation())) {
+            //String
+            if (this.isOperator(value)) {
+                //trocar o operador quando eu mudo de sinal na calculadora
+                //ele só trocou o item
+                this.setLastOperation(value);
+            } else if (isNaN(value)) {
+                //Outra coisa
+                console.log('outra coisa', value);
+            } else {
+                this.pushOperation(value);
+            }
 
-                break;
-            case 'porcento':
 
-                break;
-            case 'igual':
+        } else {
 
-                break;
+            if (this.isOperator(value)) {
 
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                this.addOperation(parseInt(numero));
-                break;
+                this.pushOperation(value);
 
-            default:
-                this.setError();
-                break;
-
+            } else {
+                //Number
+                let newValue = this.getLestOperation().toString() + value.toString();
+                this.setLastOperation(parseInt(newValue));
+                //atualizar display
+                this.setLestNumberToDisplay();
+            }
 
         }
 
+}
+
+setError(){
+    this.setDisplayCalc = "Error";
+}
+
+//decidir qual a ação desse botão
+execBtn(numero) {
+
+    switch (numero) {
+        case 'ac':
+            this.clearAll();
+            break;
+        case 'ce':
+            this.clearEntry();
+            break;
+        case 'soma':
+            this.addOperation('+');
+            break;
+        case 'subtração':
+            this.addOperation('-');
+            break;
+        case 'divisao':
+            this.addOperation('/');
+            break;
+        case 'multiplicacao':
+            this.addOperation('*');
+            break;
+        case 'porcento':
+            this.addOperation('%');
+            break;
+        case 'igual':
+            this.calc();
+            break;
+        case 'ponto':
+            this.addOperation('.');
+            break;
+
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            this.addOperation(parseInt(numero));
+            break;
+
+        default:
+            this.setError();
+            break;
+
+
     }
 
+}
 
-    //inicializar os buttons, o seletor de > g, quer dizer pegue todas as tags g do filho de buttons
 
-    initButtonEvents() {
-        let buttons = document.querySelectorAll("#buttons > g, #parts > g");
+//inicializar os buttons, o seletor de > g, quer dizer pegue todas as tags g do filho de buttons
 
-        buttons.forEach((btn, index) => {
-            //primeiro parâmetro dele é que evento que vocÊ quer, exemplo click, o segundo é o que eu devo fazer. O e é o parametro da minha arrowFunction, isso é, se eu quiser falar algo sobre o button que foi chamado, eu falo algo    
-            this.addEventListenerAll(btn, 'click drag', e => { //addEventListener  é nativo do JS
-                let textBtn = btn.className.baseVal.replace("btn-", "");
-                this.execBtn(textBtn);
-            });
+initButtonEvents() {
+    let buttons = document.querySelectorAll("#buttons > g, #parts > g");
 
-            this.addEventListenerAll(btn, "mouseover mouseup mousedown", e => {
-                btn.style.cursor = "pointer";
-            });
-
+    buttons.forEach((btn, index) => {
+        //primeiro parâmetro dele é que evento que vocÊ quer, exemplo click, o segundo é o que eu devo fazer. O e é o parametro da minha arrowFunction, isso é, se eu quiser falar algo sobre o button que foi chamado, eu falo algo    
+        this.addEventListenerAll(btn, 'click drag', e => { //addEventListener  é nativo do JS
+            let textBtn = btn.className.baseVal.replace("btn-", "");
+            this.execBtn(textBtn);
         });
 
-    }
-
-
-    setDisplayDateTime() {
-        this.setDisplayDate = this.getCurrentDate.toLocaleDateString(this._locale, {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
+        this.addEventListenerAll(btn, "mouseover mouseup mousedown", e => {
+            btn.style.cursor = "pointer";
         });
-        this.setDisplayTime = this.getCurrentDate.toLocaleTimeString(this._locale);
-    }
 
-    get getDisplayTime() {
-        return this._timeEl.innerHTML;
-    }
+    });
 
-    get getDisplayDate() {
-        return this._dateEl.innerHTML;
-    }
-
-    set setDisplayTime(value) {
-        this._timeEl.innerHTML = value;
-    }
-
-    set setDisplayDate(value) {
-        this._dateEl.innerHTML = value;
-    }
+}
 
 
-    //recupera o valor
-    get getDisplayCalc() {
-        return this._displayCalcEl.innerHTML;
-    }
+setDisplayDateTime() {
+    this.setDisplayDate = this.getCurrentDate.toLocaleDateString(this._locale, {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+    this.setDisplayTime = this.getCurrentDate.toLocaleTimeString(this._locale);
+}
 
-    //altera o valor
-    set setDisplayCalc(valor) {
-        this._displayCalcEl.innerHTML = valor;
-    }
+get getDisplayTime() {
+    return this._timeEl.innerHTML;
+}
 
-    get getCurrentDate() {
-        return new Date();
-    }
+get getDisplayDate() {
+    return this._dateEl.innerHTML;
+}
 
-    set setCurrentDate(value) {
-        this._currentDate = value;
-    }
+set setDisplayTime(value) {
+    this._timeEl.innerHTML = value;
+}
+
+set setDisplayDate(value) {
+    this._dateEl.innerHTML = value;
+}
+
+
+//recupera o valor
+get getDisplayCalc() {
+    return this._displayCalcEl.innerHTML;
+}
+
+//altera o valor
+set setDisplayCalc(valor) {
+    this._displayCalcEl.innerHTML = valor;
+}
+
+get getCurrentDate() {
+    return new Date();
+}
+
+set setCurrentDate(value) {
+    this._currentDate = value;
+}
 
 }
 /* //dentro de uma classe vou encontrar variáveis e funções.
