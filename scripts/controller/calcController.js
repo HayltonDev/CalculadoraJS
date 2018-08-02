@@ -209,7 +209,7 @@ class CalcController {
             } else {
                 //Number
                 let newValue = this.getLestOperation().toString() + value.toString();
-                this.setLastOperation(parseFloat(newValue));
+                this.setLastOperation(newValue); //não preciso mais do parseFloat senão dá problemas com o ponto
                 //atualizar display
                 this.setLestNumberToDisplay();
             }
@@ -225,6 +225,10 @@ class CalcController {
     addDot(){
             //lastoperation ão quer dizer ultimo operador tipo +, -, /, % e sim o que foi clicado por último
         let lastOperation =this.getLestOperation();
+        
+        //verifico primeiro se a operação já existe e se tá vindo nela um texto, depois tranformo em um array com split, com indexOf procuro o ponto, se retornar > -1 é que tem, se tem só sai do método com return;
+        if(typeof lastOperation === 'string' && lastOperation.split('').indexOf('.') > -1) return;
+        
         //se ele é um operador *,/,% - ou se não tem operador sendo undefined
         if(this.isOperator(lastOperation) || !lastOperation){
             this.pushOperation('0.');
