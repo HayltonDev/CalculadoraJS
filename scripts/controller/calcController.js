@@ -52,6 +52,8 @@ class CalcController {
     //método para limpar tudo
     clearAll() {
         this._operation = [];
+        this._lastNumber = '';
+        this._lastOperator = '';
         this.setLestNumberToDisplay();
     }
 
@@ -191,9 +193,6 @@ class CalcController {
                 //trocar o operador quando eu mudo de sinal na calculadora
                 //ele só trocou o item
                 this.setLastOperation(value);
-            } else if (isNaN(value)) {
-                //Outra coisa
-                console.log('outra coisa', value);
             } else {
                 this.pushOperation(value);
                 //isso pq é um número e quando eu clicava em um número, não aparecia o primeiro, apenas o segundo
@@ -210,7 +209,7 @@ class CalcController {
             } else {
                 //Number
                 let newValue = this.getLestOperation().toString() + value.toString();
-                this.setLastOperation(parseInt(newValue));
+                this.setLastOperation(parseFloat(newValue));
                 //atualizar display
                 this.setLestNumberToDisplay();
             }
@@ -221,6 +220,20 @@ class CalcController {
 
     setError() {
         this.setDisplayCalc = "Error";
+    }
+
+    addDot(){
+            //lastoperation ão quer dizer ultimo operador tipo +, -, /, % e sim o que foi clicado por último
+        let lastOperation =this.getLestOperation();
+        //se ele é um operador *,/,% - ou se não tem operador sendo undefined
+        if(this.isOperator(lastOperation) || !lastOperation){
+            this.pushOperation('0.');
+        }else{
+            // eu quero sobrescrever a minha ultima operação, só que não quero perde o número que eu tinha na minha operação
+            this.setLastOperation(lastOperation.toString() + '.'); //preciso transformar pra toString se não não consigo concatenar 
+        }
+
+        this.setLestNumberToDisplay();
     }
 
     //decidir qual a ação desse botão
@@ -252,7 +265,7 @@ class CalcController {
                 this.calc();
                 break;
             case 'ponto':
-                this.addOperation('.');
+                this.addDot();
                 break;
 
             case '0':
