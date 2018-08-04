@@ -438,8 +438,14 @@ class CalcController {
     }
 
     //altera o valor
-    set setDisplayCalc(valor) {
-        this._displayCalcEl.innerHTML = valor;
+    set setDisplayCalc(value) {
+        
+        if(value.toString().length > 10){
+            this.setError();
+            return false;
+        }
+
+        this._displayCalcEl.innerHTML = value;
     }
 
     get getCurrentDate() {
