@@ -179,9 +179,16 @@ class CalcController {
 
     //aqui é o calculo de fato com o eval e com o join que irá juntar as index formando uma string
     getResult() {
-        return eval(this._operation.join(""));
+        try{
+            return eval(this._operation.join(""));
+        }catch(e){
+            setTimeout(() => { //uso timeout pq se não usar, p this.setEror nem vai aparecer, ficara zero no display
+                this.setError();
+            }, 1);
+            
+        }
+        
     }
-
     calc() {
 
         let last = '';
@@ -439,7 +446,7 @@ class CalcController {
 
     //altera o valor
     set setDisplayCalc(value) {
-        
+
         if(value.toString().length > 10){
             this.setError();
             return false;
