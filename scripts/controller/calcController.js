@@ -5,7 +5,8 @@ class CalcController {
         //this faz referência ao próprio objeto que foi instanciado, fazendo referencia a atributos e métodos
         this._lastOperator = '';
         this._lastNumber = '';
-
+        this._audioOnOff = false; //de inicio o audio está desligado
+        this._audio = new Audio('click.mp3'); //atributo para guardar o audio através da API de audio
         this._operation = [];
         this._displayCalcEl = document.querySelector("#display");
         this._dateEl = document.querySelector("#data");
@@ -28,7 +29,28 @@ class CalcController {
 
         this.setLestNumberToDisplay();
         this.pasteFromClipboard();
+
+        document.querySelectorAll('.btn-ac').forEach(btn =>{
+            btn.addEventListener('dblclick', e=>{
+                this.toggleAudio(); //método para saber se tá ligado ou não
+            });
+        });
     }
+
+    toggleAudio(){
+        this._audioOnOff = (this._audioOnOff) ? false : true;
+        //outra forma mais faácil por ser boleando é  essa abaixo, se já era false, vai receber true, se era true, vai receber false. Por já começar false, se eu der double click em AC ele vai virar true
+        //this._audioOnOff = !this._audioOnOff;
+    }
+    
+    //método que realmente vai tocar o som
+    playAudio(){
+        if(this._audioOnOff){
+            this._audio.currentTime = 0;//serve para forçar o audio a tocar mais rápido, pois quando apertava várias vezes rapidamente, não tocava direito o audio
+            this._audio.play();
+        }
+    }
+
 
     //copiar da área de transferência, no caso por exemplo, copie do notepad++ e quero passar para a calculadora
     pasteFromClipboard(){
@@ -56,7 +78,9 @@ class CalcController {
     //método para inicializar os eventos de teclado
     initKeyBoard(){
         document.addEventListener('keyup', e=>{
-           // console.log(e.key); //para ver o valor da tecla que foi pressionada
+            //pra tocar o audio
+            this.playAudio();
+            // console.log(e.key); //para ver o valor da tecla que foi pressionada
             switch (e.key) {
                 case 'Escape':
                     this.clearAll();
@@ -308,7 +332,7 @@ class CalcController {
 
     //decidir qual a ação desse botão
     execBtn(numero) {
-
+        this.playAudio();
         switch (numero) {
             case 'ac':
                 this.clearAll();
