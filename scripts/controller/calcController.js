@@ -16,6 +16,7 @@ class CalcController {
         this.initButtonEvents();
         this.initKeyBoard();
     }
+    
 
     initialize() {
         //se o código vai repetir, crie um método
@@ -26,22 +27,36 @@ class CalcController {
         }, 1000);
 
         this.setLestNumberToDisplay();
-        /*    
-        let interval = setInterval(()=>{
-          this.setDisplayDate = this.getCurrentDate.toLocaleDateString(this._locale);
-          this.setDisplayTime = this.getCurrentDate.toLocaleTimeString(this._locale);
-        },1000 );
-        
-        setTimeout(()=>{
-          clearInterval(interval);
-        }, 5000); //se eu quisses que parasse de atualizar a data e a hora*/
+        this.pasteFromClipboard();
     }
 
-    //método para inicializar os eventos de teclado
+    //copiar da área de transferência, no caso por exemplo, copie do notepad++ e quero passar para a calculadora
+    pasteFromClipboard(){
+        document.addEventListener('paste', e=>{
+            let text = e.clipboardData.getData('Text');
+            this.setDisplayCalc = parseFloat(text);
+            //não preciso verificar se é um número ou não, pois o parseFloat só acontece se for um número e se não for devolve um NAN no display, simples
+        });
+    }
 
+    //método para uso de ctrl c + ctrl v
+    copyToClipboard(){
+        let input = document.createElement('input');
+        input.value = this.getDisplayCalc;
+        document.body.appendChild(input); //é necessário fazer o appendchild pq o input não está até esse comando inserido no body para ser selecionado
+        input.select(); //aqui ele está sendo selecionado 
+
+        //agora copio a informação que está selecionada no input e copiar para o sistema operacional
+        document.execCommand("Copy");
+
+        input.remove(); //pq está sendo removido o input? pq simplesmente não uso input lá no display e sim uso SVG 
+    }
+
+
+    //método para inicializar os eventos de teclado
     initKeyBoard(){
         document.addEventListener('keyup', e=>{
-            console.log(e.key);
+           // console.log(e.key); //para ver o valor da tecla que foi pressionada
             switch (e.key) {
                 case 'Escape':
                     this.clearAll();
@@ -76,6 +91,9 @@ class CalcController {
                 case '8':
                 case '9':
                     this.addOperation(parseInt(e.key));
+                    break;
+                case 'c': //se c foi pressionado com ctrl, chama o copy
+                    if(e.ctrlKey) this.copyToClipboard();
                     break;
     
     
